@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>SyncCal — Shared Group Calendar & Notes</title>
+  <meta name="description" content="Collaborative group calendar for friends. Plan together, leave notes, and see who is busy when." />
+
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#F0EDE6" id="metaThemeColor" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SyncCal" />
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icon.jpg" />
+
+  <!-- Fonts: Plus Jakarta Sans for high-end luxury editorial look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- App Container (Bento / Curated Shell) -->
+  <div class="app-layout" id="appLayout">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header" id="appHeader">
+      <div class="header-left">
+        <a href="#home" class="brand-logo" id="brandHomeLink" aria-label="SyncCal Home">
+          <div class="logo-mark">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="4" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">SyncCal</span>
+            <span class="brand-badge">SHARED</span>
+          </div>
+        </a>
+
+        <!-- Breadcrumb / Active Context -->
+        <div class="header-breadcrumb" id="headerBreadcrumb" style="display: none;">
+          <span class="crumb-separator">/</span>
+          <span class="current-cal-title" id="breadcrumbCalTitle">Trip to Alps</span>
+          <span class="member-pill-count" id="headerMemberBadge">4/8 members</span>
+        </div>
+      </div>
+
+      <!-- Header Search & Global Controls -->
+      <div class="header-center">
+        <div class="search-box">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="globalSearchInput" placeholder="Search friends, plans, or notes..." aria-label="Search plans and notes" />
+          <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear search" style="display: none;">✕</button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Calendars Counter Pill -->
+        <div class="counter-chip" id="calCounterChip" title="Max 5 group calendars allowed">
+          <span class="counter-dot"></span>
+          <span id="calendarCountLabel">3 / 5 Groups</span>
+        </div>
+
+        <!-- Identity / Active User Switcher -->
+        <div class="user-identity-selector" id="userIdentityContainer">
+          <button class="identity-btn" id="userIdentityBtn" aria-haspopup="listbox" aria-expanded="false" title="Switch your active member profile to view or edit as a friend">
+            <span class="user-avatar" id="activeUserAvatar">A</span>
+            <span class="user-name-label" id="activeUserName">Alex (You)</span>
+            <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="identity-dropdown" id="identityDropdown" role="listbox" style="display: none;">
+            <div class="dropdown-header">Switch active member:</div>
+            <div class="identity-list" id="identityList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light and dark mode" title="Toggle theme">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- New Group Calendar Button -->
+        <button class="btn btn-primary" id="btnHeaderNewCalendar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New Group</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Auto-Open Banner Notification (shown when entering via default launch setting) -->
+    <div class="auto-open-toast" id="autoOpenToast" style="display: none;">
+      <div class="toast-content">
+        <span class="toast-icon">⚡</span>
+        <span>Auto-opened your default calendar (<strong id="autoOpenCalName">Group</strong>).</span>
+      </div>
+      <div class="toast-actions">
+        <button class="toast-link" id="toastGoHomeBtn">View All Calendars</button>
+        <button class="toast-link text-muted" id="toastDisableAutoOpenBtn">Turn off auto-open</button>
+        <button class="toast-close" id="toastCloseBtn" aria-label="Dismiss">✕</button>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="main-content" id="mainContent">
+
+      <!-- ============================================== -->
+      <!-- SECTION 1: HOME / GROUP CALENDARS OVERVIEW     -->
+      <!-- ============================================== -->
+      <section class="view-home" id="viewHome">
+        
+        <!-- Hero / Action Bar -->
+        <div class="home-hero-bar">
+          <div class="hero-left">
+            <h2 class="section-title">Shared Calendars</h2>
+            <p class="section-subtitle">Coordinate plans, share notes, and check friend availability in real-time. Maximum 5 group calendars, 8 friends per group.</p>
+          </div>
+          <div class="hero-right">
+            <button class="btn btn-outline" id="btnExportData" title="Export or backup calendar data">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Backup</span>
+            </button>
+            <button class="btn btn-primary" id="btnHeroCreateGroup">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Create Group (Max 5)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3RD PHOTO CARD ROW: THE 5 SHARED GROUP CALENDARS -->
+        <!-- Matches the visual reference from Photo 3: 5 curated rounded cards -->
+        <div class="cards-carousel-container">
+          <div class="cards-header-label">
+            <span>YOUR GROUP CALENDARS (<span id="calendarCountNumber">3</span>/5)</span>
+            <span class="carousel-hint">Click any card to enter calendar</span>
+          </div>
+
+          <div class="group-calendars-grid" id="groupCalendarsGrid">
+            <!-- Dynamically populated up to 5 cards matching Photo 3 styles -->
+          </div>
+        </div>
+
+        <!-- Quick Glance / Multi-Calendar Busy Digest -->
+        <div class="home-bottom-layout">
+          <!-- Left: Today's Availability Across Groups -->
+          <div class="bento-card bento-today-digest">
+            <div class="bento-header">
+              <div class="bento-title-wrap">
+                <span class="bento-badge">TODAY'S STATUS</span>
+                <h3 class="bento-title" id="homeTodayDateLabel">Wednesday, Oct 21</h3>
+              </div>
+              <button class="pill-badge-btn" id="btnQuickEnterPrimary">Quick Matrix</button>
+            </div>
+            <div class="today-friends-list" id="todayFriendsDigest">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Right: Recent Shared Notes & Activity -->
+          <div class="bento-card bento-recent-notes">
+            <div class="bento-header">
+              <div class="bento-title-wrap">
+                <span class="bento-badge">SHARED NOTES</span>
+                <h3 class="bento-title">Latest Group Updates</h3>
+              </div>
+              <button class="pill-badge-btn" id="btnFilterNotes">All Notes</button>
+            </div>
+            <div class="recent-notes-list" id="recentNotesDigest">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================== -->
+      <!-- SECTION 2: INSIDE A GROUP CALENDAR VIEW       -->
+      <!-- Directly matches Image 1 Matrix + Photo 2 UI   -->
+      <!-- ============================================== -->
+      <section class="view-calendar" id="viewCalendar" style="display: none;">
+        
+        <!-- Calendar Header & Auto-Open Toggle -->
+        <div class="cal-top-bar">
+          <div class="cal-top-left">
+            <button class="btn btn-pill-nav" id="btnBackToHome" title="Return to all group calendars">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              <span>All Calendars</span>
+            </button>
+            <div class="cal-title-meta">
+              <h2 class="cal-display-name" id="calDisplayName">Weekend Trip 🏖️</h2>
+              <div class="cal-meta-badges">
+                <span class="badge-members" id="calMemberCountBadge">4 / 8 Members</span>
+                <button class="btn-text-link" id="btnOpenInviteModal">+ Invite Friend</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Controls: Auto-Open on Launch Toggle + Group Share -->
+          <div class="cal-top-right">
+            <!-- The Auto-Open Feature as requested by User -->
+            <div class="auto-open-control" title="When ON, SyncCal opens directly into this calendar on app startup">
+              <label class="switch-label" for="autoOpenCheckbox">
+                <span class="switch-icon">⚡</span>
+                <span class="switch-text">Open on app launch</span>
+                <div class="toggle-switch">
+                  <input type="checkbox" id="autoOpenCheckbox" />
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+
+            <!-- Invite Code Button -->
+            <button class="btn btn-outline btn-pill" id="btnCalInviteHeader">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+              <span>Invite</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar Navigation Bar (Matching Photo 2) -->
+        <div class="cal-navigation-card">
+          <div class="nav-controls-left">
+            <button class="nav-arrow-btn" id="btnPrevPeriod" aria-label="Previous week or month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span id="prevPeriodLabel">&lt; PREV</span>
+            </button>
+
+            <h3 class="current-period-title" id="currentPeriodTitle">October 2026</h3>
+
+            <button class="nav-arrow-btn" id="btnNextPeriod" aria-label="Next week or month">
+              <span id="nextPeriodLabel">NEXT &gt;</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
+            <button class="btn-today-pill" id="btnJumpToday">Today</button>
+          </div>
+
+          <!-- View Mode Selector -->
+          <div class="nav-controls-right">
+            <div class="view-switch-pill" role="tablist">
+              <button class="view-tab active" id="tabMatrixView" role="tab" aria-selected="true">Friends Matrix (7 Days)</button>
+              <button class="view-tab" id="tabMonthView" role="tab" aria-selected="false">Month Grid</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN CALENDAR CONTAINER (Matrix + Side Panel) -->
+        <div class="calendar-layout-grid">
+
+          <!-- LEFT COLUMN: THE SHARED MATRIX GRID (Exact match to Image 1 sketch) -->
+          <div class="matrix-card-wrap">
+            <div class="matrix-toolbar">
+              <div class="toolbar-hint">
+                <span class="hint-dot"></span>
+                <span>Friends × Days Availability Matrix • Click any cell to add notes & plans</span>
+              </div>
+              <div class="status-legend">
+                <span class="legend-item"><span class="dot dot-busy"></span>Busy</span>
+                <span class="legend-item"><span class="dot dot-tentative"></span>Tentative</span>
+                <span class="legend-item"><span class="dot dot-free"></span>Free</span>
+                <span class="legend-item"><span class="dot dot-away"></span>Away</span>
+              </div>
+            </div>
+
+            <!-- The Matrix Table (Image 1) -->
+            <div class="matrix-scroll-wrapper" id="matrixScrollWrapper">
+              <table class="matrix-table" id="friendsMatrixTable">
+                <thead id="matrixTableHead">
+                  <!-- Row 1: Columns = day, day, day, day (Image 1) -->
+                </thead>
+                <tbody id="matrixTableBody">
+                  <!-- Rows = Friend 1, 2, 3, 4, 5... (Image 1) -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Month View Grid Alternative (Hidden by default, toggleable) -->
+            <div class="month-grid-wrapper" id="monthGridWrapper" style="display: none;">
+              <div class="month-days-header" id="monthDaysHeader">
+                <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+              </div>
+              <div class="month-cells-grid" id="monthCellsGrid">
+                <!-- Month cells rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: SHARED NOTES & GROUP TASKS (Matches Photo 2 right card) -->
+          <aside class="cal-sidebar-card">
+            <div class="sidebar-header">
+              <div class="sidebar-title-wrap">
+                <h3 class="sidebar-title">Shared Notes &amp; Tasks</h3>
+                <span class="sync-status-badge">Shared with 8</span>
+              </div>
+              <button class="btn-icon-round" id="btnAddQuickNote" title="Add a shared note">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+
+            <!-- Availability Stat Bar (Inspired by 98% bar in Photo 2) -->
+            <div class="availability-progress-box">
+              <div class="progress-labels">
+                <span class="progress-name">Group Availability</span>
+                <span class="progress-value" id="calAvailabilityPercent">85% Free</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="calAvailabilityBar" style="width: 85%;"></div>
+              </div>
+            </div>
+
+            <!-- Shared Notes List -->
+            <div class="shared-notes-feed" id="calSharedNotesFeed">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Group Members Quick Avatars -->
+            <div class="group-members-footer">
+              <div class="members-footer-header">
+                <span>Group Members (<span id="footerMemberCount">4</span>/8)</span>
+                <button class="btn-text-xs" id="btnManageMembers">Manage</button>
+              </div>
+              <div class="members-avatar-chips" id="footerMemberChips">
+                <!-- Avatars rendered via JS -->
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+        <!-- FLOATING ACTION BUTTON "+" (Exactly as drawn in Image 1 bottom right!) -->
+        <button class="floating-add-btn" id="btnFloatingAdd" aria-label="Add plan or note" title="Add plan or note to calendar">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+      </section>
+
+    </main>
+
+    <!-- Footer Status / APK Instructions Trigger -->
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <span>SyncCal Shared Calendar • Maximum 5 Groups • 8 Friends Each</span>
+        <div class="footer-links">
+          <button class="footer-link-btn" id="btnOpenApkGuide">📱 Convert to APK Guide</button>
+          <span class="separator">•</span>
+          <button class="footer-link-btn" id="btnResetDemoData">Reset Demo Data</button>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODALS & DIALOGS (Using Modern <dialog>)       -->
+  <!-- ============================================== -->
+
+  <!-- 1. Add / Edit Plan & Note Modal -->
+  <dialog id="planModal" closedby="any" class="modal-dialog" aria-labelledby="planModalTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <h3 class="modal-title" id="planModalTitle">Add Plan &amp; Note</h3>
+        <button class="modal-close-btn" id="btnClosePlanModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <form id="planForm" class="modal-body" method="dialog">
+        <input type="hidden" id="planEditId" value="" />
+
+        <!-- Friend / Member Selector -->
+        <div class="form-group">
+          <label for="planMemberSelect" class="form-label">Member / Friend</label>
+          <select id="planMemberSelect" class="form-select" required>
+            <!-- Rendered via JS -->
+          </select>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="form-group">
+          <label for="planDateInput" class="form-label">Date</label>
+          <input type="date" id="planDateInput" class="form-input" required />
+        </div>
+
+        <!-- Plan Title -->
+        <div class="form-group">
+          <label for="planTitleInput" class="form-label">Plan / Activity Title</label>
+          <input type="text" id="planTitleInput" class="form-input" placeholder="e.g. Flight to Milan, Dentist, Work shift..." required />
+        </div>
+
+        <!-- Availability Status -->
+        <div class="form-group">
+          <label class="form-label">Availability / Busy Status</label>
+          <div class="status-radio-group">
+            <label class="status-option">
+              <input type="radio" name="planStatus" value="busy" checked />
+              <span class="status-badge-radio busy">🔴 Busy</span>
+            </label>
+            <label class="status-option">
+              <input type="radio" name="planStatus" value="tentative" />
+              <span class="status-badge-radio tentative">🟡 Tentative</span>
+            </label>
+            <label class="status-option">
+              <input type="radio" name="planStatus" value="free" />
+              <span class="status-badge-radio free">🟢 Free</span>
+            </label>
+            <label class="status-option">
+              <input type="radio" name="planStatus" value="away" />
+              <span class="status-badge-radio away">🟣 Out of Town</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Time & All-Day Toggle -->
+        <div class="form-row">
+          <div class="form-group col-6">
+            <label for="planStartTime" class="form-label">Start Time</label>
+            <input type="time" id="planStartTime" class="form-input" value="10:00" />
+          </div>
+          <div class="form-group col-6">
+            <label for="planEndTime" class="form-label">End Time</label>
+            <input type="time" id="planEndTime" class="form-input" value="12:00" />
+          </div>
+        </div>
+
+        <div class="form-check-wrap">
+          <label class="checkbox-label">
+            <input type="checkbox" id="planAllDayCheck" />
+            <span>All-day plan</span>
+          </label>
+        </div>
+
+        <!-- Shared Note / Details -->
+        <div class="form-group">
+          <label for="planNotesInput" class="form-label">Shared Note for Group <span class="text-muted">(visible to all members)</span></label>
+          <textarea id="planNotesInput" class="form-textarea" rows="3" placeholder="Leave notes, locations, flight info, or reasons..."></textarea>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" id="btnDeletePlan" style="display: none;">Delete</button>
+          <div class="footer-right-actions">
+            <button type="button" class="btn btn-outline" id="btnCancelPlan">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSavePlan">Save Plan</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 2. Invite Friend / Share Calendar Modal (Max 8) -->
+  <dialog id="inviteModal" closedby="any" class="modal-dialog" aria-labelledby="inviteModalTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3 class="modal-title" id="inviteModalTitle">Invite Friends to Group</h3>
+        <button class="modal-close-btn" id="btnCloseInviteModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="invite-banner">
+          <span class="invite-counter" id="inviteLimitBadge">4 of 8 Members</span>
+          <p class="invite-desc">Up to 8 friends can collaborate in this calendar. All members share notes and busy times.</p>
+        </div>
+
+        <!-- Shareable Link & Code -->
+        <div class="form-group">
+          <label class="form-label">Group Calendar Invite Code</label>
+          <div class="copy-input-group">
+            <input type="text" id="inviteCodeInput" class="form-input readonly" readonly value="CAL-8921-TRIP" />
+            <button class="btn btn-outline" id="btnCopyInviteCode">Copy Code</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Direct Share Link</label>
+          <div class="copy-input-group">
+            <input type="text" id="inviteLinkInput" class="form-input readonly" readonly value="https://synccal.app/join?code=CAL-8921" />
+            <button class="btn btn-primary" id="btnCopyInviteLink">Copy Link</button>
+          </div>
+        </div>
+
+        <!-- Add Member Manually Form -->
+        <div class="add-member-section" id="addMemberSection">
+          <h4 class="sub-heading">Or Add Member Directly</h4>
+          <div class="form-row">
+            <div class="col-8">
+              <input type="text" id="newMemberNameInput" class="form-input" placeholder="Friend's name (e.g. Jordan)" />
+            </div>
+            <div class="col-4">
+              <button class="btn btn-secondary w-full" id="btnAddMemberBtn">+ Add</button>
+            </div>
+          </div>
+          <div class="avatar-color-picker" id="avatarColorPicker">
+            <span class="color-label">Color:</span>
+            <div class="color-bubbles" id="colorBubbles">
+              <button type="button" class="color-dot active" data-color="#FF5A6E" style="background: #FF5A6E;"></button>
+              <button type="button" class="color-dot" data-color="#3B82F6" style="background: #3B82F6;"></button>
+              <button type="button" class="color-dot" data-color="#10B981" style="background: #10B981;"></button>
+              <button type="button" class="color-dot" data-color="#F59E0B" style="background: #F59E0B;"></button>
+              <button type="button" class="color-dot" data-color="#8B5CF6" style="background: #8B5CF6;"></button>
+              <button type="button" class="color-dot" data-color="#EC4899" style="background: #EC4899;"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Members List -->
+        <div class="current-members-section">
+          <h4 class="sub-heading">Current Members in this Group</h4>
+          <div class="members-manage-list" id="membersManageList">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="btnDoneInvite">Done</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 3. Create New Group Calendar Modal (Max 5 Limit) -->
+  <dialog id="newCalendarModal" closedby="any" class="modal-dialog" aria-labelledby="newCalModalTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="12" y1="9" x2="12" y2="15"></line><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+        </div>
+        <h3 class="modal-title" id="newCalModalTitle">Create Group Calendar</h3>
+        <button class="modal-close-btn" id="btnCloseNewCalModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <form id="newCalendarForm" class="modal-body" method="dialog">
+        <div class="form-group">
+          <label for="newCalNameInput" class="form-label">Calendar Name</label>
+          <input type="text" id="newCalNameInput" class="form-input" placeholder="e.g. Tokyo Roadtrip 2026, Flatmates 4B..." required />
+        </div>
+
+        <div class="form-group">
+          <label for="newCalDescInput" class="form-label">Description / Purpose <span class="text-muted">(optional)</span></label>
+          <input type="text" id="newCalDescInput" class="form-input" placeholder="e.g. Coordinate flights, hotels, and dinner reservations" />
+        </div>
+
+        <!-- Visual Style Choice (matches Photo 3 card themes) -->
+        <div class="form-group">
+          <label class="form-label">Card Aesthetic Style (Photo 3)</label>
+          <div class="style-choice-grid">
+            <label class="style-option">
+              <input type="radio" name="calStyle" value="cream" checked />
+              <div class="style-preview preview-cream">
+                <span>Warm Cream</span>
+              </div>
+            </label>
+            <label class="style-option">
+              <input type="radio" name="calStyle" value="stone" />
+              <div class="style-preview preview-stone">
+                <span>Stone Slate</span>
+              </div>
+            </label>
+            <label class="style-option">
+              <input type="radio" name="calStyle" value="gradient" />
+              <div class="style-preview preview-gradient">
+                <span>Pastel Iridescent</span>
+              </div>
+            </label>
+            <label class="style-option">
+              <input type="radio" name="calStyle" value="white" />
+              <div class="style-preview preview-white">
+                <span>Clean White</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btnCancelNewCal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitNewCal">Create Calendar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 4. Plan Details & Notes Reader Modal -->
+  <dialog id="noteDetailsModal" closedby="any" class="modal-dialog" aria-labelledby="noteDetailsTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon" id="noteStatusIcon">
+          <span class="status-dot"></span>
+        </div>
+        <h3 class="modal-title" id="noteDetailsTitle">Plan &amp; Shared Note</h3>
+        <button class="modal-close-btn" id="btnCloseNoteDetailsModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <div class="modal-body" id="noteDetailsBody">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" id="btnEditNoteDetails">Edit Plan</button>
+        <button type="button" class="btn btn-primary" id="btnCloseNoteDetails">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 5. Add Quick Shared Note Dialog -->
+  <dialog id="quickNoteModal" closedby="any" class="modal-dialog" aria-labelledby="quickNoteTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <h3 class="modal-title" id="quickNoteTitle">Post Shared Group Note</h3>
+        <button class="modal-close-btn" id="btnCloseQuickNoteModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <form id="quickNoteForm" class="modal-body" method="dialog">
+        <div class="form-group">
+          <label for="quickNoteCategory" class="form-label">Note Category</label>
+          <select id="quickNoteCategory" class="form-select">
+            <option value="important">📌 Important Info (Codes, Keys, Addresses)</option>
+            <option value="reminder">⏰ Group Reminder</option>
+            <option value="idea">💡 Idea / Recommendation</option>
+            <option value="checklist">✅ Group Task Checklist</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quickNoteContent" class="form-label">Note Content</label>
+          <textarea id="quickNoteContent" class="form-textarea" rows="4" placeholder="e.g. WiFi Password is AlpineVacation2026! Check-in starts at 3:00 PM." required></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btnCancelQuickNote">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveQuickNote">Post Note to Group</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 6. Convert to APK Guide Modal -->
+  <dialog id="apkGuideModal" closedby="any" class="modal-dialog modal-large" aria-labelledby="apkGuideTitle">
+    <div class="modal-surface">
+      <div class="modal-header">
+        <div class="modal-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <h3 class="modal-title" id="apkGuideTitle">How to Turn This Into an Android APK</h3>
+        <button class="modal-close-btn" id="btnCloseApkGuideModal" aria-label="Close dialog">✕</button>
+      </div>
+
+      <div class="modal-body apk-guide-content">
+        <p class="guide-intro">This web app is 100% PWA-configured and comes with full <strong>Capacitor</strong> and <strong>Web Manifest</strong> integration. You can generate an <code>.apk</code> file in two simple ways:</p>
+
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <span class="step-num">Method 1</span>
+            <h4>PWABuilder (Easiest — 2 Minutes, No Coding)</h4>
+          </div>
+          <ol class="step-list">
+            <li>Deploy this folder to any free host like <strong>Netlify</strong>, <strong>Vercel</strong>, or <strong>GitHub Pages</strong>.</li>
+            <li>Visit <a href="https://www.pwabuilder.com/" target="_blank" rel="noopener">PWABuilder.com</a> and paste your URL.</li>
+            <li>Click <strong>Package for Android</strong> and download your signed ready-to-install <code>.apk</code>!</li>
+          </ol>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <span class="step-num">Method 2</span>
+            <h4>Capacitor CLI (Local Android Studio Build)</h4>
+          </div>
+          <ol class="step-list">
+            <li>Run in terminal: <code>npm run cap:android</code> (pre-configured in this project).</li>
+            <li>Android Studio will open automatically.</li>
+            <li>Click <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</li>
+            <li>Your <code>app-debug.apk</code> is saved in <code>android/app/build/outputs/apk/debug/</code>. Transfer and install on any phone!</li>
+          </ol>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-header">
+            <span class="step-num">Direct Phone Install</span>
+            <h4>Instant Mobile App Without Building APK</h4>
+          </div>
+          <p class="step-text">Open the website in Chrome on your Android phone, tap <strong>⋮ (Menu) &gt; Add to Home screen</strong> (or "Install app"). It installs as a full standalone app with icon, offline cache, and full-screen experience!</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btnDoneApkGuide">Got it!</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- JavaScript logic -->
+  <script src="app.js"></script>
+</body>
+</html>

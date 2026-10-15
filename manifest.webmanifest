@@ -1,0 +1,42 @@
+{
+  "name": "SyncCal - Shared Group Calendar",
+  "short_name": "SyncCal",
+  "description": "Shared group calendar with friends notes, availability tracking, and group planner",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F0EDE6",
+  "theme_color": "#F0EDE6",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "social", "lifestyle"],
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Today's Matrix",
+      "short_name": "Today",
+      "description": "Quick view of everyone's plans for today",
+      "url": "./index.html?view=today",
+      "icons": [{ "src": "assets/icon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Add New Plan",
+      "short_name": "Add Plan",
+      "description": "Log your availability and note",
+      "url": "./index.html?action=add",
+      "icons": [{ "src": "assets/icon.svg", "sizes": "96x96" }]
+    }
+  ]
+}

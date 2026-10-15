@@ -1,0 +1,20 @@
+{
+  "name": "synccal-shared-calendar",
+  "version": "1.0.0",
+  "description": "Shared group calendar PWA that can be compiled to an Android APK",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "cap:init": "npx cap init",
+    "cap:android": "npx cap add android && npx cap open android",
+    "cap:sync": "npx cap sync"
+  },
+  "keywords": ["calendar", "shared-calendar", "pwa", "apk", "android"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  }
+}
